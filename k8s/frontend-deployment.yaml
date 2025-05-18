@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snapdrop-frontend
+  labels:
+    app: snapdrop-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: snapdrop-frontend
+  template:
+    metadata:
+      labels:
+        app: snapdrop-frontend
+    spec:
+      containers:
+      - name: snapdrop-frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: frontend-code
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+      volumes:
+      - name: frontend-code
+        configMap:
+          name: snapdrop-frontend-code
+      - name: nginx-config
+        configMap:
+          name: snapdrop-nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: snapdrop-frontend
+spec:
+  selector:
+    app: snapdrop-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer 

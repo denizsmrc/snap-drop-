@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: snapdrop-frontend-code
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Snapdrop</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .drop-zone { border: 2px dashed #ccc; padding: 20px; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Snapdrop</h1>
+        <div class="drop-zone">
+          <p>Drop files here or click to select</p>
+        </div>
+      </div>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: snapdrop-nginx-config
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name localhost;
+
+      location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+      }
+
+      location /api/ {
+        proxy_pass http://snapdrop-backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+      }
+    } 

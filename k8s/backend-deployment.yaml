@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snapdrop-backend
+  labels:
+    app: snapdrop-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: snapdrop-backend
+  template:
+    metadata:
+      labels:
+        app: snapdrop-backend
+    spec:
+      containers:
+      - name: snapdrop-backend
+        image: gcr.io/cs346-snapdrop/snapdrop-backend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: snapdrop-backend
+spec:
+  selector:
+    app: snapdrop-backend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP 
